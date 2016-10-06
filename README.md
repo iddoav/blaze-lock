@@ -1,5 +1,5 @@
 # blaze-lock
-A distributed readers-writer lock using Redis
+A readers-writer lock using Redis
 
 ### Implementation
 ```pseudo
