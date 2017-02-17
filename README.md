@@ -1,5 +1,13 @@
 # blaze-lock
-A readers-writer lock using Redis
+[![](https://img.shields.io/pypi/v/blazelock.svg)](https://pypi.python.org/pypi/blazelock)
+
+**blaze-lock** is a python module which implements areaders-writer lock using Redis. 
+
+### Installation
+
+```console
+pip install blazelock
+```
 
 ### Implementation
 ```pseudo
