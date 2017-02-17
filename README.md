@@ -1,5 +1,7 @@
 # blaze-lock
+
 [![](https://img.shields.io/pypi/v/blazelock.svg)](https://pypi.python.org/pypi/blazelock)
+[![Hex.pm](https://img.shields.io/hexpm/l/plug.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
 **blaze-lock** is a python module which implements areaders-writer lock using Redis. 
 
