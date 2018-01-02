@@ -14,7 +14,8 @@
 
 from readerwriterlock import ReaderWriterLock
 
-def ReaderLock(lock_name, host=None, port=None, db=None, timeout=None, sleep=0.1, blocking_timeout=None, max_connections=None):
+def ReaderLock(lock_name, host=None, port=None, db=None,
+               timeout=None, sleep=0.1, blocking_timeout=None, max_connections=None):
   class _ReaderLock(object):
 
     def __init__(self, func):
@@ -28,7 +29,10 @@ def ReaderLock(lock_name, host=None, port=None, db=None, timeout=None, sleep=0.1
       return self.__class__(new_func)
 
     def __call__(self, *args, **kwargs):
-      self.rw_lock = ReaderWriterLock(lock_name, host, port, db, timeout, sleep, blocking_timeout, max_connections)
+      self.rw_lock = ReaderWriterLock(lock_name, host=host, port=port, db=db,
+                                      timeout=timeout, sleep=sleep,
+                                      blocking_timeout=blocking_timeout,
+                                      max_connections=max_connections)
       self.rw_lock.acquire_read()
       return_value = self.func(*args, **kwargs)
       self.rw_lock.release_read()

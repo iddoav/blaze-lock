@@ -23,7 +23,8 @@ MESSAGE = 'ready'
 
 class ReaderWriterLock(object):
 
-  def __init__(self, lock_name, host=None, port=None, db=None, max_connections=None, timeout=None, sleep=0.1, blocking_timeout=None):
+  def __init__(self, lock_name, host=None, port=None, db=None,
+               max_connections=None, timeout=None, sleep=0.1, blocking_timeout=None):
 
     assert lock_name
     assert type(lock_name) is StringType
@@ -31,7 +32,10 @@ class ReaderWriterLock(object):
     self.reader_counter = '{}_{}_reader_counter'.format(REDIS_PREFIX, lock_name)
     self.writer_counter = '{}_{}_writer_counter'.format(REDIS_PREFIX, lock_name)
     self.message_channel = '{}_{}_message_channel'.format(REDIS_PREFIX, lock_name)
-    self.client = redis.StrictRedis(connection_pool=RedisPool(host, port, db, max_connections).blocking_pool)
+    self.client = redis.StrictRedis(connection_pool=RedisPool(host=host, port=port,
+                                                              db=db,
+                                                              max_connections=max_connections)
+                                    .blocking_pool)
     self.set_reader_count()
     self.set_writer_count()
     self._lua_lock = self.client.lock(self.redis_lock, timeout=timeout, sleep=sleep, blocking_timeout=blocking_timeout)

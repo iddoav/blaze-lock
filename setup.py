@@ -1,6 +1,7 @@
 from blazelock import __version__
 from distutils.core import setup
 # from setuptools import setup
+import setuptools
 
 VERSION = '0.1'
 
