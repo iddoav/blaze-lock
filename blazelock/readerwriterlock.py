@@ -15,20 +15,26 @@
 import redis
 from contextlib import closing
 from redispool import RedisPool
+from types import *
 
-REDIS_LOCK = 'redis_lock'
-READER_COUNTER = 'reader_counter'
-WRITER_COUNTER = 'writer_counter'
-MESSAGE_CHANNEL = 'message_channel'
+REDIS_PREFIX = 'blazelock'
 MESSAGE = 'ready'
+
 
 class ReaderWriterLock(object):
 
-  def __init__(self, timeout=None, sleep=0.0001, blocking_timeout=None):
-    self.client = redis.StrictRedis(connection_pool=RedisPool.blocking_pool)
+  def __init__(self, lock_name, host=None, port=None, db=None, max_connections=None, timeout=None, sleep=0.1, blocking_timeout=None):
+
+    assert lock_name
+    assert type(lock_name) is StringType
+    self.redis_lock = '{}_{}_redis_lock'.format(REDIS_PREFIX, lock_name)
+    self.reader_counter = '{}_{}_reader_counter'.format(REDIS_PREFIX, lock_name)
+    self.writer_counter = '{}_{}_writer_counter'.format(REDIS_PREFIX, lock_name)
+    self.message_channel = '{}_{}_message_channel'.format(REDIS_PREFIX, lock_name)
+    self.client = redis.StrictRedis(connection_pool=RedisPool(host, port, db, max_connections).blocking_pool)
     self.set_reader_count()
     self.set_writer_count()
-    self._lua_lock = self.client.lock(REDIS_LOCK, timeout=timeout, sleep=sleep, blocking_timeout=blocking_timeout)
+    self._lua_lock = self.client.lock(self.redis_lock, timeout=timeout, sleep=sleep, blocking_timeout=blocking_timeout)
   
   def acquire_read(self):
     if self._lua_lock.acquire() and self.get_writer_count() == 0:
@@ -56,12 +62,12 @@ class ReaderWriterLock(object):
     self._lua_lock.release()
   
   def notify_all(self):
-    self.client.publish(MESSAGE_CHANNEL, MESSAGE)
+    self.client.publish(self.message_channel, MESSAGE)
 
   def wait(self):
     with closing(self.client.pubsub()) as pubsub:
       self.set_writer_count(1)
-      pubsub.subscribe(MESSAGE_CHANNEL)
+      pubsub.subscribe(self.message_channel)
       self._lua_lock.release()
       for msg in pubsub.listen():
         if msg['data'] == MESSAGE:
@@ -69,25 +75,25 @@ class ReaderWriterLock(object):
           return
   
   def get_writer_count(self):
-    return int(self.client.get(WRITER_COUNTER))
+    return int(self.client.get(self.writer_counter))
 
   def set_writer_count(self, value=0):
-    self.client.setnx(WRITER_COUNTER, value)
+    self.client.setnx(self.writer_counter, value)
 
   def increment_writer_count(self):
-    self.client.incr(WRITER_COUNTER)
+    self.client.incr(self.writer_counter)
 
   def decrement_writer_count(self):
-    self.client.decr(WRITER_COUNTER)
+    self.client.decr(self.writer_counter)
   
   def get_reader_count(self):
-    return int(self.client.get(READER_COUNTER))
+    return int(self.client.get(self.reader_counter))
 
   def set_reader_count(self, value=0):
-    self.client.setnx(READER_COUNTER, value)
+    self.client.setnx(self.reader_counter, value)
 
   def increment_reader_count(self):
-    self.client.incr(READER_COUNTER)
+    self.client.incr(self.reader_counter)
 
   def decrement_reader_count(self):
-    self.client.decr(READER_COUNTER)
+    self.client.decr(self.reader_counter)

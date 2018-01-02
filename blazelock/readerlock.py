@@ -14,21 +14,24 @@
 
 from readerwriterlock import ReaderWriterLock
 
-class ReaderLock(object):
+def ReaderLock(lock_name, host=None, port=None, db=None, timeout=None, sleep=0.1, blocking_timeout=None, max_connections=None):
+  class _ReaderLock(object):
 
-  def __init__(self, func):
-    try:
-      self.rw_lock = ReaderWriterLock()
-      self.func = func
-    except Exception as e:
-      raise
-  
-  def __get__(self, obj, type=None):
-    new_func = self.func.__get__(obj, type)
-    return self.__class__(new_func)
+    def __init__(self, func):
+      try:
+        self.func = func
+      except Exception as e:
+        raise
 
-  def __call__(self, *args, **kwargs):
-    self.rw_lock.acquire_read()
-    return_value = self.func(*args, **kwargs)
-    self.rw_lock.release_read()
-    return return_value
+    def __get__(self, obj, type=None):
+      new_func = self.func.__get__(obj, type)
+      return self.__class__(new_func)
+
+    def __call__(self, *args, **kwargs):
+      self.rw_lock = ReaderWriterLock(lock_name, host, port, db, timeout, sleep, blocking_timeout, max_connections)
+      self.rw_lock.acquire_read()
+      return_value = self.func(*args, **kwargs)
+      self.rw_lock.release_read()
+      return return_value
+
+  return _ReaderLock

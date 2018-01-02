@@ -16,9 +16,19 @@ import redis
 from singletontype import SingletonType
 
 class RedisPool(object):
-  __metaclass__ = SingletonType 
-  blocking_pool = None
+  __metaclass__ = SingletonType
 
-  def __init__(self, host='localhost', port=6379, db=0, max_connections=10):
+  def __init__(self, host=None, port=None, db=None, max_connections=10):
+
+    redis_connection_pool_kwargs = {}
+    if host:
+      redis_connection_pool_kwargs['host'] = host
+    if port:
+      redis_connection_pool_kwargs['port'] = port
+    if db:
+      redis_connection_pool_kwargs['db'] = db
+    if max_connections:
+      redis_connection_pool_kwargs['max_connections'] = max_connections
+
     print "entering init"
-    blocking_pool = redis.BlockingConnectionPool(host=host, port=port, db=db, max_connections=max_connections)
+    self.blocking_pool = redis.BlockingConnectionPool(**redis_connection_pool_kwargs)

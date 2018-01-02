@@ -18,7 +18,7 @@ from blazelock.readerwriterlock import ReaderWriterLock
 class TestReadersWriterLock(object):
 
   def setup_class(self):
-    self.rw_lock = ReaderWriterLock()
+    self.rw_lock = ReaderWriterLock('test')
 
   def test_no_concurrent_readers_writers(self):
     print "testing"
