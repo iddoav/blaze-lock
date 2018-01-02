@@ -5,12 +5,10 @@ from distutils.core import setup
 VERSION = '0.1'
 
 setup(
-      name='blazelock',
+      name='sw_blazelock',
       version=__version__,
-      description='Distributed Reader-Writer Lock using Redis',
-      author='Kunal Lillaney',
-      author_email='lillaney@jhu.edu',
-      url='https://github.io/kunallillaney/blazelock',
+      description='Distributed Reader-Writer Lock using Redis - A SimilarWeb fork of blazelock by Kunal Lillaney'
+                  '(see https://github.io/kunallillaney/blazelock)',
       license='Apache2.0',
       packages=[
         'blazelock'
