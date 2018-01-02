@@ -30,5 +30,4 @@ class RedisPool(object):
     if max_connections:
       redis_connection_pool_kwargs['max_connections'] = max_connections
 
-    print "entering init"
     self.blocking_pool = redis.BlockingConnectionPool(**redis_connection_pool_kwargs)
